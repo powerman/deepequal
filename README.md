@@ -1,5 +1,7 @@
 # Go package with improved reflect.DeepEqual
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/powerman/deepequal.svg)](https://pkg.go.dev/github.com/powerman/deepequal)
+
 Most of the code is copied from Go reflect package with slight
 modifications.
 
