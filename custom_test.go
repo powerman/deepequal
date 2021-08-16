@@ -3,6 +3,7 @@ package deepequal_test
 import (
 	"testing"
 	"time"
+	"unsafe"
 
 	"github.com/powerman/deepequal"
 )
@@ -10,6 +11,11 @@ import (
 type Time time.Time
 
 func (Time) Equal(time.Time) bool { return true } // Invalid signature.
+
+//go:notinheap
+type NotInHeap struct{}
+
+var xy [2]int
 
 func TestDeepEqualEqual(t *testing.T) {
 	type T struct {
@@ -22,6 +28,8 @@ func TestDeepEqualEqual(t *testing.T) {
 		now2     = now.UTC()
 		nowTime  = Time(now)
 		now2Time = Time(now2)
+		x        = (*NotInHeap)(unsafe.Pointer(&xy[0]))
+		y        = (*NotInHeap)(unsafe.Pointer(&xy[1]))
 	)
 
 	tests := []struct {
@@ -39,6 +47,7 @@ func TestDeepEqualEqual(t *testing.T) {
 		{nowTime, now, false},
 		{nowTime, nowTime, true},
 		{nowTime, now2Time, false},
+		{x, y, true}, // https://github.com/golang/go/issues/42076
 	}
 	for _, tc := range tests {
 		tc := tc
