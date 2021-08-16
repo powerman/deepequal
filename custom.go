@@ -18,34 +18,35 @@ import (
 
 // Disable check for unexported values.
 func forceExported(v *reflect.Value) (undo func()) {
-	ref := (*value)(unsafe.Pointer(v))
+	ref := (*value)(unsafe.Pointer(v)) //nolint:gosec // Audit.
 	flag := ref.flag
 	ref.flag &^= flagRO
 	return func() { ref.flag = flag }
 }
 
 func valueInterface(v reflect.Value) interface{} {
-	defer forceExported(&v)()
+	undo := forceExported(&v)
+	defer undo()
 	return v.Interface()
 }
 
 func call(v reflect.Value, in []reflect.Value) []reflect.Value {
-	defer forceExported(&v)()
+	undo := forceExported(&v)
+	defer undo()
 	for i := range in {
-		defer forceExported(&in[i])()
+		undo := forceExported(&in[i])
+		defer undo() //nolint:revive // By design.
 	}
 	return v.Call(in)
 }
 
-var (
-	zeroValue reflect.Value
-	boolType  = reflect.TypeOf(true)
-)
+//nolint:gochecknoglobals // Const.
+var boolType = reflect.TypeOf(true)
 
 func equalFunc(v reflect.Value) (equal reflect.Value, ok bool) {
 	equal = v.MethodByName("Equal")
-	if equal == zeroValue {
-		return zeroValue, false
+	if !equal.IsValid() {
+		return equal, false
 	}
 	typ := equal.Type()
 	ok = typ.NumIn() == 1 && typ.In(0) == v.Type() &&

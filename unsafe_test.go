@@ -1,3 +1,4 @@
+//nolint:testpackage // Testing internals.
 package deepequal
 
 import (
