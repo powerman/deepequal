@@ -9,17 +9,17 @@ on:
   schedule:
     - cron: '0 12 * * 6'
 
-strategy:
-  matrix:
-    go:
-      - '^1.16'
-      - 'tip'
-
 jobs:
 
   test:
     runs-on: 'ubuntu-latest'
     timeout-minutes: 30
+    strategy:
+      matrix:
+        go:
+          - '^1.16'
+          - 'tip'
+
     steps:
       - uses: actions/setup-go@v2
         if: matrix.go != 'tip'
