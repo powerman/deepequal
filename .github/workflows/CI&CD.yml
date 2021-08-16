@@ -1,0 +1,61 @@
+name: CI/CD
+
+on:
+  push:
+    branches: master
+    tags: v*
+  pull_request:
+    branches: master
+  schedule:
+    - cron: '0 12 * * 6'
+
+strategy:
+  matrix:
+    go:
+      - '^1.16'
+      - 'tip'
+
+jobs:
+
+  test:
+    runs-on: 'ubuntu-latest'
+    timeout-minutes: 30
+    steps:
+      - uses: actions/setup-go@v2
+        if: matrix.go != 'tip'
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: Install Go tip
+        if: matrix.go == 'tip'
+        run: |
+          git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
+          cd $HOME/gotip/src
+          ./make.bash
+          echo "::set-env name=GOROOT::$HOME/gotip"
+          echo "::add-path::$HOME/gotip/bin"
+
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/bin
+            ~/go/pkg
+            ~/go/src
+            ~/.cache/go-build
+            ~/.cache/golangci-lint
+            .gobincache
+          key: v3-test-${{ runner.os }}-${{ hashFiles('go.mod') }}
+          restore-keys: |
+            v3-test-${{ runner.os }}-
+
+      - run: cd build/tools && go generate
+      - run: .gobincache/golangci-lint run
+      - run: go test -race ./...
+
+      - name: Report code coverage
+        env:
+          COVERALLS_TOKEN: ${{ secrets.COVERALLS_TOKEN }}
+        if: env.COVERALLS_TOKEN
+        run: .gobincache/goveralls -service=GitHub

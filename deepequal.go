@@ -38,9 +38,7 @@ func deepValueEqual(v1, v2 reflect.Value, visited map[visit]bool) bool {
 	// and it's safe and valid to get Value's internal pointer.
 	hard := func(v1, v2 reflect.Value) bool {
 		switch v1.Kind() {
-		case reflect.Ptr:
-			fallthrough
-		case reflect.Map, reflect.Slice, reflect.Interface:
+		case reflect.Ptr, reflect.Map, reflect.Slice, reflect.Interface:
 			// Nil pointers cannot be cyclic. Avoid putting them in the visited map.
 			return !v1.IsNil() && !v2.IsNil()
 		}
@@ -55,9 +53,9 @@ func deepValueEqual(v1, v2 reflect.Value, visited map[visit]bool) bool {
 		ptrval := func(v reflect.Value) unsafe.Pointer {
 			switch v.Kind() {
 			case reflect.Ptr, reflect.Map:
-				return (unsafe.Pointer)(v.Pointer())
+				return unsafe.Pointer(v.Pointer()) //nolint:gosec // Audit.
 			default:
-				vRef := (*value)(unsafe.Pointer(&v))
+				vRef := (*value)(unsafe.Pointer(&v)) //nolint:gosec // Audit.
 				return vRef.ptr
 			}
 		}
