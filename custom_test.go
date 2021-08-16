@@ -12,8 +12,6 @@ type Time time.Time
 func (Time) Equal(time.Time) bool { return true } // Invalid signature.
 
 func TestDeepEqualEqual(t *testing.T) {
-	t.Parallel()
-
 	type T struct {
 		t1 time.Time
 		t2 *time.Time
