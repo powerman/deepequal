@@ -28,6 +28,8 @@ jobs:
 
       - name: Install Go tip
         if: matrix.go == 'tip'
+        env:
+          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
         run: |
           git clone --depth=1 https://go.googlesource.com/go $HOME/gotip
           cd $HOME/gotip/src
