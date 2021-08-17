@@ -35,7 +35,7 @@ jobs:
           echo "GOROOT=$HOME/gotip" >> $GITHUB_ENV
           echo "$HOME/gotip/bin" >> $GITHUB_PATH
 
-      - run: env | sort
+      - run: go version
 
       - uses: actions/checkout@v2
 
