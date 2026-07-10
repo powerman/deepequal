@@ -1,10 +1,16 @@
 # Go package with improved reflect.DeepEqual
 
+[![License MIT](https://img.shields.io/badge/license-MIT-royalblue.svg)](LICENSE)
+[![License BSD-3-Clause](https://img.shields.io/badge/license-BSD-3-Clause-royalblue.svg)](LICENSE)
+[![Go version](https://img.shields.io/github/go-mod/go-version/powerman/deepequal?color=blue)](https://go.dev/)
+[![Test](https://img.shields.io/github/actions/workflow/status/powerman/deepequal/test.yml?label=test)](https://github.com/powerman/deepequal/actions/workflows/test.yml)
+[![Coverage Status](https://raw.githubusercontent.com/powerman/deepequal/gh-badges/coverage.svg)](https://github.com/powerman/deepequal/actions/workflows/test.yml)
+[![Release](https://img.shields.io/github/v/release/powerman/deepequal?color=blue)](https://github.com/powerman/deepequal/releases/latest)
 [![Go Reference](https://pkg.go.dev/badge/github.com/powerman/deepequal.svg)](https://pkg.go.dev/github.com/powerman/deepequal)
-[![CI/CD](https://github.com/powerman/deepequal/workflows/CI/CD/badge.svg?event=push)](https://github.com/powerman/deepequal/actions?query=workflow%3ACI%2FCD)
-[![Coverage Status](https://coveralls.io/repos/github/powerman/deepequal/badge.svg?branch=master)](https://coveralls.io/github/powerman/deepequal?branch=master)
-[![Go Report Card](https://goreportcard.com/badge/github.com/powerman/deepequal)](https://goreportcard.com/report/github.com/powerman/deepequal)
-[![Release](https://img.shields.io/github/v/release/powerman/deepequal)](https://github.com/powerman/deepequal/releases/latest)
+
+![Linux | amd64 arm64 armv7 ppc64le s390x riscv64](https://img.shields.io/badge/Linux-amd64%20arm64%20armv7%20ppc64le%20s390x%20riscv64-royalblue)
+![macOS | amd64 arm64](https://img.shields.io/badge/macOS-amd64%20arm64-royalblue)
+![Windows | amd64 arm64](https://img.shields.io/badge/Windows-amd64%20arm64-royalblue)
 
 Most of the code is copied from Go reflect package with slight
 modifications.
