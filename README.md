@@ -1,7 +1,7 @@
 # Go package with improved reflect.DeepEqual
 
 [![License MIT](https://img.shields.io/badge/license-MIT-royalblue.svg)](LICENSE)
-[![License BSD-3-Clause](https://img.shields.io/badge/license-BSD-3-Clause-royalblue.svg)](LICENSE)
+[![License BSD3](https://img.shields.io/badge/license-BSD3-royalblue.svg)](LICENSE-go)
 [![Go version](https://img.shields.io/github/go-mod/go-version/powerman/deepequal?color=blue)](https://go.dev/)
 [![Test](https://img.shields.io/github/actions/workflow/status/powerman/deepequal/test.yml?label=test)](https://github.com/powerman/deepequal/actions/workflows/test.yml)
 [![Coverage Status](https://raw.githubusercontent.com/powerman/deepequal/gh-badges/coverage.svg)](https://github.com/powerman/deepequal/actions/workflows/test.yml)
