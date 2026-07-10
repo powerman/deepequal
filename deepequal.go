@@ -7,6 +7,7 @@
 package deepequal
 
 import (
+	"bytes"
 	"reflect"
 	"unsafe"
 )
@@ -38,7 +39,17 @@ func deepValueEqual(v1, v2 reflect.Value, visited map[visit]bool) bool {
 	// and it's safe and valid to get Value's internal pointer.
 	hard := func(v1, v2 reflect.Value) bool {
 		switch v1.Kind() {
-		case reflect.Ptr, reflect.Map, reflect.Slice, reflect.Interface:
+		case reflect.Pointer:
+			if !hasPointers(v1) {
+				// not-in-heap pointers can't be cyclic.
+				// At least, all of our current uses of internal/runtime/sys.NotInHeap
+				// have that property. The runtime ones aren't cyclic (and we don't use
+				// DeepEqual on them anyway), and the cgo-generated ones are
+				// all empty structs.
+				return false
+			}
+			fallthrough
+		case reflect.Map, reflect.Slice, reflect.Interface:
 			// Nil pointers cannot be cyclic. Avoid putting them in the visited map.
 			return !v1.IsNil() && !v2.IsNil()
 		}
@@ -46,13 +57,13 @@ func deepValueEqual(v1, v2 reflect.Value, visited map[visit]bool) bool {
 	}
 
 	if hard(v1, v2) {
-		// For a Ptr or Map value, we need to check flagIndir,
+		// For a Pointer or Map value, we need to check flagIndir,
 		// which we do by calling the pointer method.
 		// For Slice or Interface, flagIndir is always set,
 		// and using v.ptr suffices.
 		ptrval := func(v reflect.Value) unsafe.Pointer {
 			switch v.Kind() {
-			case reflect.Ptr, reflect.Map:
+			case reflect.Pointer, reflect.Map:
 				return unsafe.Pointer(v.Pointer()) //nolint:gosec // Audit.
 			default:
 				vRef := (*value)(unsafe.Pointer(&v)) //nolint:gosec // Audit.
@@ -97,8 +108,12 @@ func deepValueEqual(v1, v2 reflect.Value, visited map[visit]bool) bool {
 		if v1.Len() != v2.Len() {
 			return false
 		}
-		if v1.Pointer() == v2.Pointer() {
+		if v1.UnsafePointer() == v2.UnsafePointer() {
 			return true
+		}
+		// Special case for []byte, which is common.
+		if v1.Type().Elem().Kind() == reflect.Uint8 {
+			return bytes.Equal(v1.Bytes(), v2.Bytes())
 		}
 		for i := 0; i < v1.Len(); i++ {
 			if !deepValueEqual(v1.Index(i), v2.Index(i), visited) {
@@ -111,8 +126,8 @@ func deepValueEqual(v1, v2 reflect.Value, visited map[visit]bool) bool {
 			return v1.IsNil() == v2.IsNil()
 		}
 		return deepValueEqual(v1.Elem(), v2.Elem(), visited)
-	case reflect.Ptr:
-		if v1.Pointer() == v2.Pointer() {
+	case reflect.Pointer:
+		if v1.UnsafePointer() == v2.UnsafePointer() {
 			return true
 		}
 		return deepValueEqual(v1.Elem(), v2.Elem(), visited)
@@ -130,12 +145,13 @@ func deepValueEqual(v1, v2 reflect.Value, visited map[visit]bool) bool {
 		if v1.Len() != v2.Len() {
 			return false
 		}
-		if v1.Pointer() == v2.Pointer() {
+		if v1.UnsafePointer() == v2.UnsafePointer() {
 			return true
 		}
-		for _, k := range v1.MapKeys() {
-			val1 := v1.MapIndex(k)
-			val2 := v2.MapIndex(k)
+		iter := v1.MapRange()
+		for iter.Next() {
+			val1 := iter.Value()
+			val2 := v2.MapIndex(iter.Key())
 			if !val1.IsValid() || !val2.IsValid() || !deepValueEqual(val1, val2, visited) {
 				return false
 			}
@@ -147,6 +163,18 @@ func deepValueEqual(v1, v2 reflect.Value, visited map[visit]bool) bool {
 		}
 		// Can't do better than this:
 		return false
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		return v1.Int() == v2.Int()
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64, reflect.Uintptr:
+		return v1.Uint() == v2.Uint()
+	case reflect.String:
+		return v1.String() == v2.String()
+	case reflect.Bool:
+		return v1.Bool() == v2.Bool()
+	case reflect.Float32, reflect.Float64:
+		return v1.Float() == v2.Float()
+	case reflect.Complex64, reflect.Complex128:
+		return v1.Complex() == v2.Complex()
 	default:
 		// Normal equality suffices
 		return valueInterface(v1) == valueInterface(v2)

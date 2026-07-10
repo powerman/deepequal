@@ -18,6 +18,8 @@ type NotInHeap struct{}
 var xy [2]int
 
 func TestDeepEqualEqual(t *testing.T) {
+	t.Parallel()
+
 	type T struct {
 		t1 time.Time
 		t2 *time.Time
@@ -50,8 +52,9 @@ func TestDeepEqualEqual(t *testing.T) {
 		{x, y, true}, // https://github.com/golang/go/issues/42076
 	}
 	for _, tc := range tests {
-		tc := tc
 		t.Run("", func(t *testing.T) {
+			t.Parallel()
+
 			if res := deepequal.DeepEqual(tc.a, tc.b); res != tc.want {
 				t.Errorf("DeepEqual(%v, %v) = %v, want %v", tc.a, tc.b, res, tc.want)
 			}

@@ -413,6 +413,31 @@ linters:
       - linters:
           - godoclint
         text: should have a godoc \("(String|Error|Format|(Marshal|Unmarshal)(Text|JSON))"\)
+      # The rules below apply only to code copied (with minimal changes) from the Go
+      # standard library's reflect package, kept close to the original on purpose so
+      # future upstream syncs stay easy to diff. Do not extend these paths to files
+      # containing this package's own logic.
+      - path: ^deepequal\.go$
+        linters:
+          - exhaustive # Mirrors reflect/deepequal.go, which isn't exhaustive either.
+          - gocognit # A single big func, same as upstream reflect/deepequal.go.
+          - funlen # A single big func, same as upstream reflect/deepequal.go.
+          - intrange # Kept as literal `for i := 0; i < n; i++` like upstream.
+      - path: ^value\.go$
+        linters:
+          - embeddedstructfieldcheck # Field order mirrors reflect.Value; an unsafe.Pointer
+          #                            cast relies on it, reordering would break the layout.
+      - path: ^type\.go$
+        linters:
+          - unused # Fields mirror internal/abi.Type layout for an unsafe.Pointer cast;
+          #          most of them are never read directly.
+      - path: ^all_test\.go$
+        linters:
+          - paralleltest # Mirrors reflect/all_test.go, which doesn't call t.Parallel either.
+      - path: ^all_test\.go$
+        text: enforce-map-style
+        linters:
+          - revive # Mirrors reflect/all_test.go, which uses map literals, not make().
     paths:
       - \.[\w-]+\.go$ # Use this pattern to name auto-generated files.
 formatters:

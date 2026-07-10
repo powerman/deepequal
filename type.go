@@ -39,3 +39,6 @@ type rtype struct {
 type nameOff int32 // offset to a name
 
 type typeOff int32 // offset to an *rtype
+
+// Pointers reports whether t contains pointers.
+func (t *rtype) Pointers() bool { return t.ptrdata != 0 }
