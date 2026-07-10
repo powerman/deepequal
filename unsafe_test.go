@@ -13,7 +13,7 @@ func TestForceExported(t *testing.T) {
 
 	var v struct{ a int }
 	val := reflect.ValueOf(v).Field(0)
-	var res interface{}
+	var res any
 	func() {
 		defer func() { res = recover() }()
 		_ = valueInterface(val)

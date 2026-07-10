@@ -24,7 +24,7 @@ func forceExported(v *reflect.Value) (undo func()) {
 	return func() { ref.flag = flag }
 }
 
-func valueInterface(v reflect.Value) interface{} {
+func valueInterface(v reflect.Value) any {
 	undo := forceExported(&v)
 	defer undo()
 	return v.Interface()

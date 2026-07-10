@@ -19,7 +19,7 @@ type Basic struct {
 type NotBasic Basic
 
 type DeepEqualTest struct {
-	a, b interface{}
+	a, b any
 	eq   bool
 }
 
@@ -34,13 +34,13 @@ type self struct{}
 
 type Loop *Loop
 
-type Loopy interface{}
+type Loopy any
 
 var loop1, loop2 Loop
 
 var loopy1, loopy2 Loopy
 
-var cycleMap1, cycleMap2, cycleMap3 map[string]interface{}
+var cycleMap1, cycleMap2, cycleMap3 map[string]any
 
 type structWithSelfPtr struct {
 	p *structWithSelfPtr
@@ -54,11 +54,11 @@ func init() {
 	loopy1 = &loopy2
 	loopy2 = &loopy1
 
-	cycleMap1 = map[string]interface{}{}
+	cycleMap1 = map[string]any{}
 	cycleMap1["cycle"] = cycleMap1
-	cycleMap2 = map[string]interface{}{}
+	cycleMap2 = map[string]any{}
 	cycleMap2["cycle"] = cycleMap2
-	cycleMap3 = map[string]interface{}{}
+	cycleMap3 = map[string]any{}
 	cycleMap3["different"] = cycleMap3
 }
 
@@ -118,7 +118,7 @@ var deepEqualTests = []DeepEqualTest{
 	{int32(1), int64(1), false},
 	{0.5, "hello", false},
 	{[]int{1, 2, 3}, [3]int{1, 2, 3}, false},
-	{&[3]interface{}{1, 2, 4}, &[3]interface{}{1, 2, "s"}, false},
+	{&[3]any{1, 2, 4}, &[3]any{1, 2, "s"}, false},
 	{Basic{1, 0.5}, NotBasic{1, 0.5}, false},
 	{map[uint]string{1: "one", 2: "two"}, map[int]string{2: "two", 1: "one"}, false},
 

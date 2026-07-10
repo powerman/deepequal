@@ -33,7 +33,7 @@ func TestDeepEqualEqual(t *testing.T) {
 	)
 
 	tests := []struct {
-		a, b interface{}
+		a, b any
 		want bool
 	}{
 		{now, now, true},
